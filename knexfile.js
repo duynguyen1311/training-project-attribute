@@ -12,10 +12,10 @@ module.exports = {
             charset: 'utf8'
         },
         migrations: {
-            directory: __dirname + '/src/configs/knex/migrations',
+            directory: __dirname + '/src/configs/db/migrations',
         },
         seeds: {
-            directory: __dirname + '/src/configs/knex/seeds'
+            directory: __dirname + '/src/configs/db/seeds'
         }
     }
 };
