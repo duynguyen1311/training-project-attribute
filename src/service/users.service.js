@@ -1,7 +1,49 @@
 const knex = require('../configs/db/knex')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const roleConstant = require('../common/contants/role-constant')
 const roleMapping = require('../common/utils/role-helper')
 class UsersService {
+    async login(email, password){
+        const user = await this.getUserByEmail(email);
+        let role = '';
+        if (!user) throw new Error('Invalid email or password !');
+        // Compare provided password with stored hash
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) throw new Error('Invalid email or password !');
+        switch (user.roleId){
+            case roleConstant.ROLES.MEMBER:
+                role = roleMapping(roleConstant.ROLES.MEMBER);
+                break;
+            case roleConstant.ROLES.MANAGER:
+                role = roleMapping(roleConstant.ROLES.MANAGER);
+                break;
+            default:
+                break;
+        }
+        // Generate JWT token
+        const token = jwt.sign({
+            userId: user.userId,
+            email: user.email,
+            role: role,
+            roleId: user.roleId
+        }, process.env.JWT_SECRET, {
+            expiresIn: '1h'
+        });
+        return {
+            message: "Login successful",
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            },
+            token: token
+        };
+    }
     async createUser(user){
+        const saltRounds = 10;
+        const defaultRole = 3; // Viewer
+        user.password = await bcrypt.hash(user.password, saltRounds);
         const [result] = await knex('users').insert(user).returning('*');
         return {
             userId: result.userId,
@@ -49,6 +91,9 @@ class UsersService {
         } else {
             throw new Error('User not found !');
         }
+    }
+    async getUserByEmail(email){
+        return knex('users').where({email: email}).first();
     }
 }
 module.exports = new UsersService();

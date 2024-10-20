@@ -1,8 +1,23 @@
 const userService = require('../service/users.service');
 const roleConstant = require('../common/contants/role-constant');
+const validationHelper = require('../common/utils/validation-helper');
+
+module.exports.login = async (req,res) => {
+    try {
+        const { email, password } = req.body;
+        const validation = validationHelper.validateLoginInput({ email, password });
+        if(!validation.isValid) {
+            return res.status(500).json(validation.errors);
+        }
+        const result = await userService.login(email, password);
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
 module.exports.createUser = async (req,res) => {
     try {
-        const {username, email, role} = req.body;
+        const { username, password, email, role } = req.body;
         const isEmailExist = await userService.isEmailExists(email);
         if (isEmailExist) return res.status(500).json('Email is existed !');
         let roleId = 0;
@@ -17,7 +32,7 @@ module.exports.createUser = async (req,res) => {
                 break;
         }
         if (roleId !== 0) {
-            const result = await userService.createUser({username,email,roleId});
+            const result = await userService.createUser({ username, password, email, roleId });
             res.status(201).json(result);
         } else {
             res.status(400).json('Role is invalid !');
