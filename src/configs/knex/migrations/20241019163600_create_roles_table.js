@@ -1,7 +1,7 @@
 exports.up = function(knex) {
     return knex.schema.createTable('roles', function(table) {
         table.increments();
-        table.integer('roleId ').notNullable();
+        table.integer('roleId ').primary().notNullable();
         table.string('roleName ').notNullable();
     })
 };

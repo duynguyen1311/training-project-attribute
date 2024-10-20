@@ -134,4 +134,3 @@ dist
 *.idea
 #env
 *.env
-knexfile.js

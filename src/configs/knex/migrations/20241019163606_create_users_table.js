@@ -1,7 +1,7 @@
 exports.up = function(knex) {
     return knex.schema.createTable('users', function(table) {
         table.increments();
-        table.uuid('userId ').notNullable();
+        table.uuid('userId ').primary().notNullable();
         table.string('username ').notNullable();
         table.string('email').notNullable();
         table.integer('roleId').references('roleId').inTable('roles')
