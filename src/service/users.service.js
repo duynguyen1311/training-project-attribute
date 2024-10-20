@@ -42,6 +42,13 @@ class UsersService {
             throw new Error('User not found !');
         }
     }
-
+    async getMemberById(id){
+        const member = await knex('users').where({userId: id}).first();
+        if (member) {
+            return member;
+        } else {
+            throw new Error('User not found !');
+        }
+    }
 }
 module.exports = new UsersService();

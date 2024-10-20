@@ -1,7 +1,7 @@
 const userService = require('../service/users.service');
 const roleConstant = require('../common/contants/role-constant');
 module.exports.createUser = async (req,res) => {
-    try{
+    try {
         const {username, email, role} = req.body;
         const isEmailExist = await userService.isEmailExists(email);
         if (isEmailExist) return res.status(500).json('Email is existed !');
@@ -22,14 +22,14 @@ module.exports.createUser = async (req,res) => {
         } else {
             res.status(400).json('Role is invalid !');
         }
-    }catch (error){
+    } catch (error){
         console.error('Error creating user:', error);
         res.status(500).json({ error: error.message });
     }
 }
 
 module.exports.updateUser = async (req,res) => {
-    try{
+    try {
         const user = req.body;
         const { id } = req.params;
         const isEmailExist = await userService.isEmailExists(user.email);
@@ -41,18 +41,18 @@ module.exports.updateUser = async (req,res) => {
             res.status(404).json('User not found !');
         }
 
-    }catch (error){
+    } catch (error){
         console.error('Error updating user:', error);
         res.status(500).json({ error: error.message });
     }
 }
 
 module.exports.deleteUser = async (req,res) => {
-    try{
+    try {
         const { id } = req.params;
         await userService.deleteUser(id);
         res.status(201).json('User is deleted !');
-    }catch (error){
+    } catch (error){
         console.error('Error deleting user:', error);
         res.status(500).json({ error: error.message });
     }
