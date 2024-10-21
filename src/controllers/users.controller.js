@@ -1,5 +1,5 @@
 const userService = require('../service/users.service');
-const roleConstant = require('../common/contants/role-constant');
+const constant = require('../common/constant');
 const validationHelper = require('../common/utils/validation-helper');
 
 module.exports.login = async (req,res) => {
@@ -23,10 +23,10 @@ module.exports.createUser = async (req,res) => {
         let roleId = 0;
         switch (role){
             case 'Manager':
-                roleId = roleConstant.ROLES.MANAGER;
+                roleId = constant.ROLES.MANAGER;
                 break;
             case 'Member' :
-                roleId = roleConstant.ROLES.MEMBER;
+                roleId = constant.ROLES.MEMBER;
                 break;
             default:
                 break;

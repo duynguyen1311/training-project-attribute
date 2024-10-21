@@ -1,5 +1,5 @@
 const teamService = require("../service/teams.service");
-const roleConstant = require("../common/contants/role-constant");
+const constant = require("../common/constant");
 module.exports.createTeam = async (req,res) => {
     try {
         const {
@@ -18,7 +18,7 @@ module.exports.addMember = async (req,res) => {
     try {
         const { memberId, memberName } = req.body;
         const { teamId } = req.params;
-        const result = await teamService.addToTeam(teamId, memberId, memberName, roleConstant.ROLES.MEMBER);
+        const result = await teamService.addToTeam(teamId, memberId, memberName, constant.ROLES.MEMBER);
         res.status(201).json(result);
     } catch (error){
         console.error('Error adding member to team:', error);
@@ -29,7 +29,7 @@ module.exports.addManager = async (req,res) => {
     try {
         const { managerId, managerName } = req.body;
         const { teamId } = req.params;
-        const result = await teamService.addToTeam(teamId, managerId, managerName, roleConstant.ROLES.MANAGER);
+        const result = await teamService.addToTeam(teamId, managerId, managerName, constant.ROLES.MANAGER);
         res.status(201).json(result);
     } catch (error){
         console.error('Error adding manager to team:', error);

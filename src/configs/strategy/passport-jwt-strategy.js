@@ -1,5 +1,5 @@
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const knex = require('../db/knex')
+const dbConnection = require('../db/knex')
 
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -8,7 +8,7 @@ const options = {
 
 const strategy = new JwtStrategy(options, async (jwtPayload, next) => {
     try {
-        const result = await knex('users').where({userId: jwtPayload.userId}).first()
+        const result = await dbConnection.knex('users').where({userId: jwtPayload.userId}).first()
         if (result) {
             return next(null, jwtPayload);
         }

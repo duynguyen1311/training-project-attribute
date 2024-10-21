@@ -1,15 +1,18 @@
-const knex = require('../configs/db/knex');
-const roleConstant = require('../common/contants/role-constant');
+const dbConnection = require('../configs/db/knex');
+const constant = require('../common/constant');
 const userService = require('./users.service');
 class TeamsService{
+    constructor() {
+        this.connection = dbConnection.knex;
+    }
     async createTeamWithMembers(teamName, listManager, listMember){
-        const trx = await knex.transaction();
+        const trx = await this.connection.transaction();
 
         try {
             const [{teamId}] = await trx('team').insert({teamName: teamName}).returning('teamId');
 
-            const addedManagers = await this.addTeamMembers(trx, teamId, listManager, roleConstant.ROLES.MANAGER);
-            const addedMembers = await this.addTeamMembers(trx, teamId, listMember, roleConstant.ROLES.MEMBER);
+            const addedManagers = await this.addTeamMembers(trx, teamId, listManager, constant.ROLES.MANAGER);
+            const addedMembers = await this.addTeamMembers(trx, teamId, listMember, constant.ROLES.MEMBER);
 
             await trx.commit();
 
@@ -27,11 +30,11 @@ class TeamsService{
     async addTeamMembers(trx, teamId, listUserId, roleId) {
         const addedUsers = [];
         for (const userId of listUserId) {
-            if(roleId === roleConstant.ROLES.MEMBER){
+            if(roleId === constant.ROLES.MEMBER){
                 const teamMemeber = {
                     teamId: teamId,
                     userId: userId,
-                    roleId: roleConstant.ROLES.MEMBER
+                    roleId: constant.ROLES.MEMBER
                 };
                 await trx('team_members').insert(teamMemeber);
                 const memberName = await userService.getMemberById(userId);
@@ -45,7 +48,7 @@ class TeamsService{
                 const teamManager = {
                     teamId: teamId,
                     userId: userId,
-                    roleId: roleConstant.ROLES.MANAGER
+                    roleId: constant.ROLES.MANAGER
                 };
                 await trx('team_members').insert(teamManager);
                 const managerName = await userService.getMemberById(userId);
@@ -60,14 +63,14 @@ class TeamsService{
         return addedUsers;
     }
     async addToTeam(teamId, userId, name, roleId){
-        await knex('team_members').insert({
+        await this.connection('team_members').insert({
             teamId: teamId,
             userId: userId,
             roleId: roleId
         })
         const user = await userService.getMemberById(userId);
         if(!user) throw new Error('User not found !');
-        if(roleId === roleConstant.ROLES.MEMBER){
+        if(roleId === constant.ROLES.MEMBER){
             return {
                 memberId: user.userId,
                 memberName: user.username
@@ -81,7 +84,7 @@ class TeamsService{
 
     }
     async removeUserFromTeam(teamId, userId) {
-        const deletedCount = await knex('team_members')
+        const deletedCount = await this.connection('team_members')
             .where({ teamId, userId })
             .del();
 
@@ -90,7 +93,7 @@ class TeamsService{
         }
     }
     async getAllTeam(){
-        return knex('team_members').from('team').select('team.teamId', 'team.teamName').orderBy('team.created_at', 'desc');
+        return this.connection('team_members').from('team').select('team.teamId', 'team.teamName').orderBy('team.created_at', 'desc');
     }
     async getTeamById(teamId) {
         const query = `
@@ -115,7 +118,7 @@ class TeamsService{
                 t."teamId" = ?;
     `;
 
-        const result = await knex.raw(query, [teamId]);
+        const result = await this.connection.raw(query, [teamId]);
 
         if (result.rows.length === 0) {
             throw new Error('Team not found');
